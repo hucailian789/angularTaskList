@@ -1,0 +1,111 @@
+﻿<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>TodoMVC</title>
+	<link rel="stylesheet" href="css/base.css">
+	<link rel="stylesheet" href="css/index.css">
+	<link rel="stylesheet" href="css/app.css">
+	<script src="angular.min.js"></script>
+</head>
+
+<body ng-app="myApp">
+	<section class="todoapp" ng-controller="myCtrl">
+		<header class="header">
+			<h1>任务清单</h1>
+			<form ng-submit="add()">
+				<input class="new-todo" ng-model="name" placeholder="列出你要完成的事项" autofocus>
+			</form>
+		</header>
+		<section class="main">
+			<input class="toggle-all" type="checkbox">
+			<ul class="todo-list">
+				<li ng-class="{completed:item.isFinished}" ng-repeat="item in list">
+					<div class="view">
+						<input class="toggle" ng-click="toggle(item.id)" type="checkbox">
+						<label>{{item.name}}</label>
+						<button class="destroy" ng-click="delete(item.id)"></button>
+					</div>
+					<input class="edit" value="Create a TodoMVC template">
+				</li>
+			</ul>
+		</section>
+		<footer class="footer">
+			<span class="todo-count">还有<strong>{{left}}</strong>项未完成</span>
+			<button class="clear-completed" ng-click="clear()">清除已完成</button>
+		</footer>
+	</section>
+	<footer class="info">
+	</footer>
+</body>
+<script>
+	// 集中精力 处理数据.
+	// 数据: 需要展示的数据是 一件一件的事情. 
+	// 使用一个数组来存储一件一件的事情.
+	// 每一件事情, 使用1个对象来表示每一件事情.
+	// $scope.list = [
+	//   {id:1,name:"和女票看场电影",isFinished:false},
+	//   {id:2,name:"买一个游戏机",isFinished:false},
+	//   {id:3,name:"吃个浪漫的晚餐",isFinished:false},
+	//   {id:4,name:"敲代码",isFinished:false},
+	// ];
+
+	var app = angular.module("myApp", []); //创建模块
+	app.controller("myCtrl", ["$scope", function ($scope) { //创建控制器
+		$scope.list = [];
+		$scope.left = 0;
+		$scope.id = 1;
+		$scope.add = function () { //1.给表单提交的时候一个函数 hh               
+			$scope.list.push({ //把用户输入的内容追加到数组里
+				id: $scope.id++,
+				name: $scope.name,
+				isFinished: false //未选中的用false表示
+			})
+			$scope.name = ""; //提交完表单,要清空里面的内容
+			$scope.getLeft(); //调用项目提交后,left值会增加
+		}
+
+		$scope.toggle = function (id) { //2.点击勾选的时候,让下标对应的isFinished取反
+			for (var index in $scope.list) {
+				if ($scope.list[index].id == id) {
+					$scope.list[index].isFinished = !($scope.list[index].isFinished);
+					break;
+				}
+			}
+			$scope.getLeft();
+		}
+
+		$scope.delete = function (id) { //3.点击X按钮的时候,让下标对应的id  splice掉
+			for (var index in $scope.list) {
+				if ($scope.list[index].id == id) {
+					$scope.list.splice(index, 1);
+				}
+			}
+			$scope.getLeft();
+		}
+
+		$scope.clear = function () { //4.点击清除的时候,将isFinished=false的追加到新的数组里面去,
+			var newList = [];
+			for (var index in $scope.list) {
+				if ($scope.list[index].isFinished == false) {
+					newList.push($scope.list[index]);
+				}
+			}
+			$scope.list = newList; //	然后把新的数组附值给原来的数组
+		}
+
+		$scope.getLeft = function () { //项目未完成给它封装成一个函数,因为经要在很多地方调用.
+			$scope.left = 0;
+			for (var index in $scope.list) {
+				if ($scope.list[index].isFinished == false) {
+					$scope.left++;
+				}
+			}
+		}
+
+	}])
+</script>
+
+</html>
